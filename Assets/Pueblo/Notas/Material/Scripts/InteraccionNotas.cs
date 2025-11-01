@@ -1,16 +1,25 @@
 using UnityEngine;
+using UnityEngine.UI; 
 
 public class InteraccionNotas : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public GameObject imagePanel;
+    private bool isPlayerNear = false; 
+    private bool isImageVisible = false;
+
+    private void Update()
     {
-        
+        if (isPlayerNear && Input.GetKeyDown(KeyCode.E)) { 
+            isImageVisible = !isImageVisible;
+            imagePanel.SetActive(isImageVisible);
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnTriggerEnter(Collider other)
     {
-        
+        if (other.CompareTag("Player"))
+        {
+            isPlayerNear = true;
+        }
     }
 }
