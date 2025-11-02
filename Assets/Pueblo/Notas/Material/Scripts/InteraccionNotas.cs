@@ -40,7 +40,7 @@ public class InteraccionNotasManager : MonoBehaviour
         {
             nota.texto3D.text = nota.mensaje; // Asigna el texto
             nota.texto3D.gameObject.SetActive(true);
-            yield return new WaitForSeconds(5f);
+            yield return new WaitForSeconds(25f);
             nota.texto3D.gameObject.SetActive(false);
         }
     }
