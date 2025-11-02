@@ -7,6 +7,7 @@ public class PlayerHealth : MonoBehaviour
     // --- Variables de Salud ---
     public int maxHealth = 5;
     private int currentHealth;
+    private GameManager gameManager; // Referencia al GameManager
 
     // --- Variables de UI ---
     // Arrastraremos las 5 imágenes de vida aquí
@@ -20,16 +21,13 @@ public class PlayerHealth : MonoBehaviour
 
     void Start()
     {
-        // 1. Empezamos con la vida máxima
         currentHealth = maxHealth;
+        // Asegúrate de encontrar el GameManager al inicio
+        gameManager = FindObjectOfType<GameManager>();
+        if (gameManager == null) Debug.LogError("GameManager no encontrado en la escena!");
 
-        // 2. Nos aseguramos que la pantalla de Game Over esté apagada
-        if (gameOverPanel != null)
-        {
-            gameOverPanel.SetActive(false);
-        }
-
-        // 3. Actualizamos la UI para mostrar 5 vidas
+        // Estas líneas ya no son necesarias aquí, el GameManager se encarga
+        // if (gameOverPanel != null) gameOverPanel.SetActive(false); 
         UpdateHealthUI();
     }
 
@@ -97,18 +95,13 @@ public class PlayerHealth : MonoBehaviour
 
     void Die()
     {
-        // 1. Mostramos la pantalla de Game Over
-        if (gameOverPanel != null)
+        // El PlayerHealth solo le dice al GameManager que muestre el Game Over
+        if (gameManager != null)
         {
-            gameOverPanel.SetActive(true);
+            gameManager.ShowGameOver();
         }
-
-        // 2. Pausamos el juego
-        Time.timeScale = 0f;
-
-        // 3. (Opcional) Desactivamos el script de movimiento del jugador
-        // Si tu script de movimiento se llama "PlayerMovement", descomenta la siguiente línea:
-        // GetComponent<PlayerMovement>().enabled = false;
+        // El Time.timeScale ya lo maneja el GameManager
+        // Time.timeScale = 0f; 
     }
 
     // Esta es una Corutina que espera un tiempo
