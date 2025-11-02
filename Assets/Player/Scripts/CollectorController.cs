@@ -5,31 +5,44 @@ public class CollectorController : MonoBehaviour
 {
     [Header("Recolección")]
     public List<Transform> dagasRecolectadas = new List<Transform>();
-    public Transform puntoOrbita; // Empty encima del jugador
+    public Transform puntoOrbita;
     public float radioOrbita = 1.5f;
     public float velocidadRotacion = 50f;
 
     [Header("Entrega")]
-    public Transform puntoEntrega;         // Empty en el centro del altar o círculo
-    public float radioEntrega = 1.2f;      // Radio del círculo de entrega
-    public float alturaEntrega = 1.0f;     // Qué tan alto flotan sobre el altar
+    public Transform puntoEntrega;
+    public float radioEntrega = 1.2f;
+    public float alturaEntrega = 1.0f;
     public float velocidadRotacionEntrega = 25f;
-    public float velocidadMovimiento = 3f; // Qué tan rápido se mueven al entregar
+    public float velocidadMovimiento = 3f;
+
+    // --- AÑADIDO: Variables de Victoria ---
+    public int dagasParaGanar = 3; // ¡Define aquí cuántas dagas necesitas!
+    private GameManager gameManager;
+    private bool victoriaAlcanzada = false;
+    // ---
 
     private bool entregando = false;
-
-    // Lista global de dagas ya entregadas (para que queden girando ahí)
     private readonly List<Transform> dagasEntregadas = new();
+
+    // --- AÑADIDO: Método Start para encontrar el GameManager ---
+    private void Start()
+    {
+        // Busca el GameManager en la escena al iniciar
+        gameManager = FindObjectOfType<GameManager>();
+        if (gameManager == null)
+        {
+            Debug.LogError("¡CollectorController no pudo encontrar el GameManager!");
+        }
+    }
+    // ---
 
     private void Update()
     {
         if (!entregando)
         {
-            // Orbitan sobre el jugador
             OrbitarDagas(dagasRecolectadas, puntoOrbita, radioOrbita, velocidadRotacion);
         }
-
-        // Mantener girando las que ya fueron entregadas
         OrbitarDagas(dagasEntregadas, puntoEntrega, radioEntrega, velocidadRotacionEntrega, alturaEntrega);
     }
 
@@ -38,14 +51,9 @@ public class CollectorController : MonoBehaviour
         for (int i = 0; i < lista.Count; i++)
         {
             if (lista[i] == null) continue;
-
             float angulo = Time.time * velocidad + i * (360f / lista.Count);
             Vector3 destino = centro.position + Quaternion.Euler(0, angulo, 0) * Vector3.forward * radio;
-
-            // Ajustar altura flotante
             destino.y = centro.position.y + alturaExtra;
-
-            // Movimiento y rotación suaves
             lista[i].position = Vector3.Lerp(lista[i].position, destino, Time.deltaTime * 5f);
             lista[i].Rotate(Vector3.up * velocidad * Time.deltaTime);
         }
@@ -53,7 +61,6 @@ public class CollectorController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // Recolección
         if (other.CompareTag("Daga"))
         {
             Debug.Log("Daga recogida: " + other.name);
@@ -62,7 +69,6 @@ public class CollectorController : MonoBehaviour
             other.GetComponent<Collider>().enabled = false;
         }
 
-        // Entrega
         if (other.CompareTag("ZonaEntrega") && dagasRecolectadas.Count > 0 && !entregando)
         {
             Debug.Log("Entrando en zona de entrega...");
@@ -74,16 +80,14 @@ public class CollectorController : MonoBehaviour
     {
         entregando = true;
 
-        // Mover dagas hacia la zona de entrega
         foreach (Transform daga in dagasRecolectadas)
         {
             if (daga == null) continue;
 
-            // Movimiento suave hacia un punto aleatorio sobre el altar
             float t = 0f;
             Vector3 origen = daga.position;
             Vector3 destino = puntoEntrega.position + Random.insideUnitSphere * 0.3f;
-            destino.y = puntoEntrega.position.y + alturaEntrega; // flotan sobre el altar
+            destino.y = puntoEntrega.position.y + alturaEntrega;
 
             while (t < 1f)
             {
@@ -92,13 +96,25 @@ public class CollectorController : MonoBehaviour
                 yield return null;
             }
 
-            dagasEntregadas.Add(daga); // se suma al conjunto de entregadas
+            dagasEntregadas.Add(daga);
         }
 
         dagasRecolectadas.Clear();
         entregando = false;
 
         Debug.Log("Dagas entregadas, flotando sobre el altar.");
+
+        // --- AÑADIDO: Chequeo de Victoria ---
+        // Revisa si ya entregamos suficientes dagas y si ya no hemos ganado
+        if (!victoriaAlcanzada && dagasEntregadas.Count >= dagasParaGanar)
+        {
+            victoriaAlcanzada = true; // Marca la victoria para no llamarla de nuevo
+            Debug.Log("¡CONDICIÓN DE VICTORIA CUMPLIDA!");
+            if (gameManager != null)
+            {
+                gameManager.ShowVictoryScreen(); // ¡Llama al GameManager!
+            }
+        }
+        // ---
     }
 }
-
