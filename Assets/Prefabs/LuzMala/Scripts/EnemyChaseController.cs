@@ -12,13 +12,18 @@ public class EnemyChaseController : MonoBehaviour
     #region propiedades del script
     [Header("Persecución")]
     [Tooltip("Objetivo a perseguir. Si está vacío busca por tag 'player'")]
-    [SerializeField] private Transform target;       
+    [SerializeField] private Transform target;
     [SerializeField] private float detectionRadius = 10f;  // Radio de detección
     [SerializeField] private float moveSpeed = 3f;         // Velocidad de persecución
-    [SerializeField] private bool canChase = false;        // Habilita o no la persecución
+
+    // --- LÍNEA MODIFICADA/AÑADIDA ---
+    [Tooltip("Distancia a la que el enemigo frenará antes de chocar con el objetivo.")]
+    [SerializeField] private float stoppingDistance = 2f;  // Distancia para frenar
+
+    [SerializeField] private bool canChase = false;         // Habilita o no la persecución
 
     [Header("Rotación suave")]
-    [SerializeField] private float rotationSpeed = 5f;  // el gameobect debe girar hacia el target
+    [SerializeField] private float rotationSpeed = 5f;   // el gameobect debe girar hacia el target
 
     [Header("Eventos")]
     public UnityEvent OnTargetEnterRange;
@@ -70,7 +75,9 @@ public class EnemyChaseController : MonoBehaviour
 
         if (isTargetInRange)
         {
-            ChaseTarget();
+            // --- LÍNEA MODIFICADA ---
+            // Le pasamos la distancia al método ChaseTarget
+            ChaseTarget(distance);
         }
     }
     #endregion
@@ -78,18 +85,26 @@ public class EnemyChaseController : MonoBehaviour
     /// <summary>
     /// Realiza un pequeño acercamiento del objeto hacia hacia el target
     /// </summary>
-    private void ChaseTarget()
+    // --- LÍNEA MODIFICADA ---
+    private void ChaseTarget(float distanceToTarget) // Ahora recibe la distancia
     {
         // Calcular dirección
         Vector3 direction = (target.position - transform.position).normalized;
 
-        // Movimiento hacia el objetivo
-        transform.position += direction * moveSpeed * Time.deltaTime;
+        // --- BLOQUE MODIFICADO ---
+        // Solo nos movemos si estamos más lejos que la distancia de parada
+        if (distanceToTarget > stoppingDistance)
+        {
+            // Movimiento hacia el objetivo
+            transform.position += direction * moveSpeed * Time.deltaTime;
+        }
+        // --- FIN DEL BLOQUE MODIFICADO ---
 
-        // Rotación suave hacia el objetivo
+
+        // Rotación suave hacia el objetivo (la rotación siempre ocurre)
         Quaternion lookRotation = Quaternion.LookRotation(direction);
-        transform.rotation = Quaternion.Slerp(transform.rotation, 
-                               lookRotation, rotationSpeed * Time.deltaTime);
+        transform.rotation = Quaternion.Slerp(transform.rotation,
+                                    lookRotation, rotationSpeed * Time.deltaTime);
     }
 
     /// <summary>
@@ -114,6 +129,11 @@ public class EnemyChaseController : MonoBehaviour
 
         Gizmos.color = canChase ? activeColor : idleColor;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
+
+        // --- AÑADIDO: Dibujar el círculo de "freno" ---
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, stoppingDistance);
+        // ---
 
         if (target != null)
         {
