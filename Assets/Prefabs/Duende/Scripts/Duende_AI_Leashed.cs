@@ -6,93 +6,105 @@ using UnityEngine.AI; // ¡Importante para el NavMesh!
 public class Duende_AI_Leashed : MonoBehaviour
 {
     // --- Componentes ---
-    private NavMeshAgent agent; // El "GPS"
-    private Animator anim;      // El "Titiritero"
+    private NavMeshAgent agent;
+    private Animator anim;
     private Transform player;
 
-    // --- Variables de "Correa" (Leash) ---
+    // --- Variables de Configuración ---
     [Header("Configuración de IA")]
-    public float detectionRange = 15f;
-    public float leashRange = 25f;
+    public float detectionRange = 15f; // Rango para empezar a perseguir
+    public float leashRange = 25f;     // Rango máximo desde casa
 
     // --- Variables de Estado ---
-    private Vector3 startPosition;
-    private bool isChasing = false;
+    private Vector3 startPosition; // Su "casa"
+    private bool isChasingLogic = false; // Variable interna para la lógica de decisión
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+
+        // Buscar al jugador por Tag
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null) player = playerObj.transform;
+
         startPosition = transform.position;
 
-        // ¡Ya no necesitamos poner el agent.isStopped = true aquí!
-        // Dejamos que el Update lo controle todo.
+        // Estado inicial: Quieto
+        agent.isStopped = true;
     }
 
     void Update()
     {
-        if (player == null) return;
+        // 1. SEGURIDAD CRÍTICA:
+        // Si el jugador no existe, o el agente murió/se apagó, no hacer nada.
+        // Esto evita los errores rojos en la consola.
+        if (player == null || agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
 
-        // Calcular distancias
+        // --- LÓGICA DE DECISIÓN (CEREBRO) ---
+
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
         float distanceToHome = Vector3.Distance(transform.position, startPosition);
 
-        // --- LÓGICA DE DECISIÓN ---
-
-        // 1. ¿Debo empezar a perseguir?
-        if (!isChasing && distanceToPlayer <= detectionRange)
+        // Decidir si debe perseguir o volver
+        if (!isChasingLogic && distanceToPlayer <= detectionRange)
         {
-            isChasing = true;
+            isChasingLogic = true; // Empezar a perseguir
+        }
+        else if (isChasingLogic && (distanceToPlayer > detectionRange || distanceToHome > leashRange))
+        {
+            isChasingLogic = false; // Rendirse y volver a casa
         }
 
-        // 2. ¿Debo dejar de perseguir?
-        if (isChasing && (distanceToPlayer > detectionRange || distanceToHome > leashRange))
-        {
-            isChasing = false;
-        }
+        // --- LÓGICA DE MOVIMIENTO (GPS) ---
 
-        // --- LÓGICA DE ACCIÓN (MOVIMIENTO) ---
-
-        if (isChasing)
+        if (isChasingLogic)
         {
-            // --- ESTADO: PERSEGUIR ---
+            // ESTADO: PERSEGUIR JUGADOR
             agent.isStopped = false;
             agent.SetDestination(player.position);
         }
         else
         {
-            // --- ESTADO: NO PERSEGUIR (Volviendo a casa o quieto) ---
-            if (distanceToHome > 1.0f) // ¿Estoy lejos de casa?
+            // ESTADO: VOLVER A CASA
+            if (distanceToHome > 1.0f) // Si está lejos de casa (margen de 1 metro)
             {
-                // Sí, estoy lejos -> Vuelve a casa
                 agent.isStopped = false;
                 agent.SetDestination(startPosition);
             }
-            else
+            else // Si ya llegó a casa
             {
-                // No, estoy en casa -> Quédate quieto
                 agent.isStopped = true;
-                transform.position = startPosition; // (Opcional) "Snap" a la posición exacta
             }
         }
 
-        // --- LÓGICA DE ANIMACIÓN (¡LA PARTE NUEVA!) ---
-        // Esta es la única línea que controla TODAS las animaciones.
-        // Si el "GPS" (agent) NO está parado, entonces "isMoving" es true.
-        anim.SetBool("isMoving", !agent.isStopped);
+        // --- LÓGICA DE ANIMACIÓN (CORRECCIÓN "MOONWALKING") ---
+
+        // Usamos la velocidad física real y un umbral de 0.5f para evitar que "corra quieto".
+        // También usamos el nombre 'isChasing' que configuramos en tu Animator.
+
+        if (agent.velocity.sqrMagnitude > 0.5f && !agent.isStopped)
+        {
+            anim.SetBool("isChasing", true); // Activa RUN
+        }
+        else
+        {
+            anim.SetBool("isChasing", false); // Activa IDLE
+        }
     }
 
-    // (El OnDrawGizmosSelected sigue igual, no lo borres)
+    // Dibujar los rangos en el editor
     private void OnDrawGizmosSelected()
     {
-        if (startPosition == Vector3.zero)
-            startPosition = transform.position;
+        if (startPosition == Vector3.zero) startPosition = transform.position;
+
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(startPosition, 1.0f);
+        Gizmos.DrawWireSphere(startPosition, 1.0f); // Casa
+
         Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, detectionRange);
+        Gizmos.DrawWireSphere(transform.position, detectionRange); // Rango detección (Corregido)
+
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(startPosition, leashRange);
+        Gizmos.DrawWireSphere(startPosition, leashRange); // Límite correa
     }
 }
