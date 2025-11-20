@@ -1,5 +1,8 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 /// <summary>
 /// Controla la persecución de un objetivo dentro de un rango determinado.
@@ -10,17 +13,27 @@ using UnityEngine.Events;
 public class EnemyChaseController : MonoBehaviour
 {
     #region propiedades del script
+
     [Header("Persecución")]
-    [Tooltip("Objetivo a perseguir. Si está vacío busca por tag 'player'")]
     [SerializeField] private Transform target;
-    [SerializeField] private float detectionRadius = 10f;  // Radio de detección
-    [SerializeField] private float moveSpeed = 3f;         // Velocidad de persecución
+    [SerializeField] private float baseDetectionRadius = 10f; // rango de persecución
+    [SerializeField] private float baseMoveSpeed = 3f;  // Velocidad de persecución
+    [SerializeField] private float stoppingDistance = 2f;// Distancia para frenar
+    [SerializeField] private bool canChase = false;  // Habilita o no la persecución
 
-    // --- LÍNEA MODIFICADA/AÑADIDA ---
-    [Tooltip("Distancia a la que el enemigo frenará antes de chocar con el objetivo.")]
-    [SerializeField] private float stoppingDistance = 2f;  // Distancia para frenar
 
-    [SerializeField] private bool canChase = false;         // Habilita o no la persecución
+    [Header("Escalado por dagas")]
+    public CollectorController collector;
+    public float detectionIncreasePerDaga = 1f;
+    public float speedIncreasePerDaga = 0.5f;
+    private int dagas;
+    [Header("Post-Processing")]
+    public Volume postProcessVolume;
+    public ChromaticAberration chromaticAberration;
+    private LensDistortion lensDistortion;
+
+
+         
 
     [Header("Rotación suave")]
     [SerializeField] private float rotationSpeed = 5f;   // el gameobect debe girar hacia el target
@@ -50,12 +63,25 @@ public class EnemyChaseController : MonoBehaviour
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             if (player != null) target = player.transform;
         }
+
+        if (postProcessVolume != null)
+        {
+            postProcessVolume.profile.TryGet(out chromaticAberration);
+            postProcessVolume.profile.TryGet(out lensDistortion);
+        }
+
     }
 
     private void Update()
     {
         if (!canChase || target == null)
             return;
+        
+        dagas = collector != null ? collector.dagasRecolectadas.Count : 0;
+
+        float detectionRadius = baseDetectionRadius + (dagas * detectionIncreasePerDaga);
+        float moveSpeed = baseMoveSpeed + (dagas * speedIncreasePerDaga);
+
 
         float distance = Vector3.Distance(transform.position, target.position);
         bool inRange = distance <= detectionRadius;
@@ -71,13 +97,17 @@ public class EnemyChaseController : MonoBehaviour
             // Evento: objetivo sale de rango
             isTargetInRange = false;
             OnTargetExitRange?.Invoke();
+            ResetVisualEffects();
         }
 
         if (isTargetInRange)
         {
             // --- LÍNEA MODIFICADA ---
             // Le pasamos la distancia al método ChaseTarget
-            ChaseTarget(distance);
+
+            ChaseTarget(distance, moveSpeed);
+            ApplyVisualEffects(dagas);
+
         }
     }
     #endregion
@@ -86,7 +116,7 @@ public class EnemyChaseController : MonoBehaviour
     /// Realiza un pequeño acercamiento del objeto hacia hacia el target
     /// </summary>
     // --- LÍNEA MODIFICADA ---
-    private void ChaseTarget(float distanceToTarget) // Ahora recibe la distancia
+    private void ChaseTarget(float distanceToTarget, float moveSpeed) // Ahora recibe la distancia
     {
         // Calcular dirección
         Vector3 direction = (target.position - transform.position).normalized;
@@ -106,6 +136,25 @@ public class EnemyChaseController : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation,
                                     lookRotation, rotationSpeed * Time.deltaTime);
     }
+
+
+    private void ApplyVisualEffects(int dagas)
+    {
+        if (chromaticAberration != null)
+            chromaticAberration.intensity.value = Mathf.Clamp(dagas * 0.2f, 0f, 1f);
+
+        if (lensDistortion != null)
+            lensDistortion.intensity.value = Mathf.Clamp(-dagas * 0.1f, -0.5f, 0f);
+    }
+
+
+    private void ResetVisualEffects()
+    {
+        if (chromaticAberration != null) chromaticAberration.intensity.value = 0f;
+        if (lensDistortion != null) lensDistortion.intensity.value = 0f;
+    }
+
+
 
     /// <summary>
     /// Permite activar o desactivar la persecución externamente.
@@ -128,7 +177,7 @@ public class EnemyChaseController : MonoBehaviour
         if (!showDebug) return;
 
         Gizmos.color = canChase ? activeColor : idleColor;
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+        Gizmos.DrawWireSphere(transform.position, baseDetectionRadius);
 
         // --- AÑADIDO: Dibujar el círculo de "freno" ---
         Gizmos.color = Color.red;
