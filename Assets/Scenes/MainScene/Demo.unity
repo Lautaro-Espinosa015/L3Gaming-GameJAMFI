@@ -58843,15 +58843,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jugador: {fileID: 1777525625}
-  offsetBase: {x: 0.8, y: 1.6, z: -3}
-  sensibilidadRotacion: 100
+  offsetBase: {x: 1.2, y: 1.8, z: -3.5}
+  sensibilidadRotacion: 80
   sensibilidadZoomLateral: 2
   smoothTime: 0.05
   distanciaMin: 1.5
   distanciaMax: 4
   capasObstaculo:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
   margenColision: 0.4
 --- !u!1 &834057011
 GameObject:

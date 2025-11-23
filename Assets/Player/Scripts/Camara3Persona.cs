@@ -7,14 +7,14 @@ public class Camara3Persona : MonoBehaviour
 
     [Header("Posici鏮 base")]
     // X = lateral, Y = altura del pivote, Z = distancia inicial (usamos su valor absoluto)
-    // Para el efecto 'Over the Shoulder' (RE4), X debe ser 0.8 a 1.2
-    public Vector3 offsetBase = new Vector3(0.8f, 1.6f, -3.0f);
+    
+    public Vector3 offsetBase = new Vector3(1.2f, 1.8f, -3.5f);
 
     [Header("Controles")]
-    public float sensibilidadRotacion = 100f;
+    public float sensibilidadRotacion = 80f;
     public float sensibilidadZoomLateral = 2f;
     [Range(0.01f, 0.5f)]
-    public float smoothTime = 0.05f; // 。LAVE ANTI-PARPADEO! Un valor bajo la mantiene estable.
+    public float smoothTime = 0.01f; // 。LAVE ANTI-PARPADEO! Un valor bajo la mantiene estable.
 
     [Header("Zoom")]
     public float distanciaMin = 1.5f; // Distancia m璯ima para el estilo 'cercano'
@@ -25,8 +25,8 @@ public class Camara3Persona : MonoBehaviour
     public LayerMask capasObstaculo;
     public float margenColision = 0.4f; // Margen de seguridad antes del obst塶ulo
 
-    private float rotacionX = 15f; // 聲gulo vertical (Pitch)
-    private float rotacionY = 0f;  // 聲gulo horizontal (Yaw)
+    private float rotacionX = 15f; // 聲gulo vertical 
+    private float rotacionY = 0f;  // 聲gulo horizontal 
     private float distanciaActual;
 
     // Variable para la velocidad de SmoothDamp
