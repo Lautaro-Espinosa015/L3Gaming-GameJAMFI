@@ -12627,6 +12627,135 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1030994778, guid: abc00000000013582911179529913124, type: 3}
   m_PrefabInstance: {fileID: 160119081}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &160457295
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 160457296}
+  - component: {fileID: 160457297}
+  m_Layer: 0
+  m_Name: AmbientAudioSource
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &160457296
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160457295}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1371448691}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &160457297
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160457295}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: 24ad34b8ba9057744abb87db01e4e392, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 170
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1001 &160635796
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -95482,6 +95611,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a5af41abfd4460468c8ac2853ef3877, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ambientAudioSource: {fileID: 160457297}
+  ambientClips:
+  - {fileID: 8300000, guid: 24ad34b8ba9057744abb87db01e4e392, type: 3}
+  fadeDuration: 0.1
+  soundDelay: 0.5
   notas:
   - triggerObject: {fileID: 440441156}
     panelUI: {fileID: 0}
@@ -95512,26 +95646,12 @@ MonoBehaviour:
   - triggerObject: {fileID: 635922512}
     panelUI: {fileID: 0}
     texto3D: {fileID: 1803745799}
-    mensaje: "Nac\xED ac\xE1. En este mismo pueblo. Cuando todav\xEDa ten\xEDa nombre,
-      cuando la gente re\xEDa y los cerros nos cuidaban. No s\xE9 cu\xE1ntos a\xF1os
-      pasaron, pero fui el primero en nacer y el \xFAltimo en quedarme. Cuando era
-      joven, se hablaba de una luz que aparec\xEDa en los cerros. Una luz rara, como
-      flotando, que se mov\xEDa despacito entre los cactus. Dec\xEDan que era Mandinga,
-      que proteg\xEDa un tesoro enterrado. Pero nadie la vio de cerca. Era m\xE1s
-      cuento que otra cosa. El pueblo sigui\xF3 como siempre. Pero cuando ya estaba
-      viejo, algo cambi\xF3. Al principio era lejos, como si la luz mirara desde
-      afuera. Despu\xE9s, empez\xF3 a acercarse. Las noches se volvieron pesadas.
-      Los chicos lloraban sin raz\xF3n. La gente no pod\xEDa dormir. Algunos dec\xEDan
-      que so\xF1aban con voces, otros que sent\xEDan que alguien los miraba. Y de
-      a poco, todos se fueron. Uno por uno. Como si el pueblo los echara. Yo me qued\xE9.
-      No por valiente. Porque no ten\xEDa a d\xF3nde ir. Y entend\xED. La luz quer\xEDa
-      proteger algo. Y para hacerlo, se encarg\xF3 de echar a la gente\u2026 o acabar
-      con ella. Hab\xEDa una reliquia en la iglesia, unos *3 cuchillos que se perdieron*.
-      Antigua. Sagrada. Bendita dec\xEDan. Nadie sab\xEDa de d\xF3nde vino. Cuando
-      desapareci\xF3, todo cambi\xF3. Las campanas dejaron de sonar. Y con ellas,
-      el silencio se volvi\xF3 absoluto. Como si Dios se hubiera ido. Como si el
-      pueblo hubiera quedado solo\u2026 con la luz. Si quer\xE9s terminar con esto\u2026
-      devolv\xE9 la reliquia."
+    mensaje: "Nac\xED aqu\xED. El pueblo cre\xEDa en una luz misteriosa en los cerros
+      que proteg\xEDa un tesoro. Pero cuando la luz se acerc\xF3 en mi vejez, la
+      gente empez\xF3 a irse, aterrorizada.  La luz est\xE1 protegiendo algo: la
+      reliquia que desapareci\xF3 de la iglesia. Desde que se perdieron los 3 cuchillos
+      que se perdieron, el pueblo est\xE1 en silencio y Dios parece haberse ido. 
+      Para acabar con esto, hay que devolver la reliquia."
   - triggerObject: {fileID: 13817592}
     panelUI: {fileID: 0}
     texto3D: {fileID: 737268753}
@@ -95650,7 +95770,8 @@ Transform:
   m_LocalPosition: {x: 499.1379, y: 13.352932, z: 702.43805}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 160457296}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1371490431
