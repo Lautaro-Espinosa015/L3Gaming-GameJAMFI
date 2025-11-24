@@ -1,152 +1,144 @@
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-/// <summary>
-/// Controla la persecución de un objetivo dentro de un rango determinado.
-/// Puede activarse o desactivarse mediante un flag público.
-/// Incluye eventos y herramientas de debug para uso en packages.
-/// </summary>
 [AddComponentMenu("AI/Enemy Chase Controller")]
 public class EnemyChaseController : MonoBehaviour
 {
-    #region propiedades del script
+    #region Propiedades del Script
 
-    [Header("Persecución")]
+    [Header("Persecución Base")]
     [SerializeField] private Transform target;
-    [SerializeField] private float baseDetectionRadius = 10f; // rango de persecución
-    [SerializeField] private float baseMoveSpeed = 3f;  // Velocidad de persecución
-    [SerializeField] private float stoppingDistance = 2f;// Distancia para frenar
-    [SerializeField] private bool canChase = false;  // Habilita o no la persecución
+    [SerializeField] private float baseDetectionRadius = 10f; // Rango base
+    [SerializeField] private float baseMoveSpeed = 3f;        // Velocidad base
 
+    // --- CORRECCIÓN CLAVE: Distancia de frenado ---
+    [Tooltip("Distancia a la que frena para no empujar al jugador")]
+    [SerializeField] private float stoppingDistance = 2f;
 
-    [Header("Escalado por dagas")]
+    [SerializeField] private bool canChase = false;
+
+    [Header("Escalado por Dagas (Dificultad)")]
     public CollectorController collector;
-    public float detectionIncreasePerDaga = 1f;
-    public float speedIncreasePerDaga = 0.5f;
+    public float detectionIncreasePerDaga = 1f; // Cuánto aumenta el rango por daga
+    public float speedIncreasePerDaga = 0.5f;   // Cuánto aumenta la velocidad por daga
     private int dagas;
-    [Header("Post-Processing")]
+
+    [Header("Post-Processing (Terror)")]
     public Volume postProcessVolume;
-    public ChromaticAberration chromaticAberration;
+    private ChromaticAberration chromaticAberration;
     private LensDistortion lensDistortion;
 
-
-         
-
-    [Header("Rotación suave")]
-    [SerializeField] private float rotationSpeed = 5f;   // el gameobect debe girar hacia el target
+    [Header("Rotación")]
+    [SerializeField] private float rotationSpeed = 5f;
 
     [Header("Eventos")]
     public UnityEvent OnTargetEnterRange;
     public UnityEvent OnTargetExitRange;
 
-    [Header("Debug visual")]
+    [Header("Debug")]
     [SerializeField] private bool showDebug = true;
     [SerializeField] private Color activeColor = Color.cyan;
     [SerializeField] private Color idleColor = Color.gray;
 
     private bool isTargetInRange = false;
 
-    // Nueva propiedad solo de lectura
-    public bool IsTargetInRange => isTargetInRange;
-
     #endregion
 
-    #region ciclo de vida del sccript
+    #region Ciclo de Vida
+
     private void Start()
     {
-        // Si no se asignó un target, busca automáticamente por tag
+        // Buscar al jugador si no está asignado
         if (target == null)
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             if (player != null) target = player.transform;
         }
 
+        // Configurar Post-Processing
         if (postProcessVolume != null)
         {
             postProcessVolume.profile.TryGet(out chromaticAberration);
             postProcessVolume.profile.TryGet(out lensDistortion);
         }
-
     }
 
     private void Update()
     {
-        if (!canChase || target == null)
-            return;
-        
+        if (!canChase) return;
+
+        // SEGURIDAD: Re-buscar al jugador si se perdió (por cambio de personaje)
+        if (target == null)
+        {
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null) target = player.transform;
+            else return; // Si no hay jugador, no hacemos nada
+        }
+
+        // 1. CALCULAR DIFICULTAD DINÁMICA
         dagas = collector != null ? collector.dagasRecolectadas.Count : 0;
+        float currentDetectionRadius = baseDetectionRadius + (dagas * detectionIncreasePerDaga);
+        float currentMoveSpeed = baseMoveSpeed + (dagas * speedIncreasePerDaga);
 
-        float detectionRadius = baseDetectionRadius + (dagas * detectionIncreasePerDaga);
-        float moveSpeed = baseMoveSpeed + (dagas * speedIncreasePerDaga);
-
-
+        // 2. CALCULAR DISTANCIA
         float distance = Vector3.Distance(transform.position, target.position);
-        bool inRange = distance <= detectionRadius;
+        bool inRange = distance <= currentDetectionRadius;
 
+        // 3. GESTIÓN DE ESTADOS Y EVENTOS
         if (inRange && !isTargetInRange)
         {
-            // Evento: objetivo entra en rango
             isTargetInRange = true;
             OnTargetEnterRange?.Invoke();
         }
         else if (!inRange && isTargetInRange)
         {
-            // Evento: objetivo sale de rango
             isTargetInRange = false;
             OnTargetExitRange?.Invoke();
-            ResetVisualEffects();
+            ResetVisualEffects(); // Apagar efectos si escapas
         }
 
+        // 4. EJECUTAR PERSECUCIÓN
         if (isTargetInRange)
         {
-            // --- LÍNEA MODIFICADA ---
-            // Le pasamos la distancia al método ChaseTarget
-
-            ChaseTarget(distance, moveSpeed);
+            ChaseTarget(distance, currentMoveSpeed);
             ApplyVisualEffects(dagas);
-
         }
     }
+
     #endregion
-    #region Logica de métodos
-    /// <summary>
-    /// Realiza un pequeño acercamiento del objeto hacia hacia el target
-    /// </summary>
-    // --- LÍNEA MODIFICADA ---
-    private void ChaseTarget(float distanceToTarget, float moveSpeed) // Ahora recibe la distancia
+
+    #region Lógica de Métodos
+
+    private void ChaseTarget(float distanceToTarget, float speed)
     {
-        // Calcular dirección
+        // Calcular dirección hacia el jugador
         Vector3 direction = (target.position - transform.position).normalized;
 
-        // --- BLOQUE MODIFICADO ---
-        // Solo nos movemos si estamos más lejos que la distancia de parada
+        // --- CORRECCIÓN FÍSICA: EL FRENO ---
+        // Solo nos movemos si estamos LEJOS. Si estamos cerca (<= 2m), frenamos.
+        // Esto evita que el enemigo empuje al jugador y lo mande al cielo.
         if (distanceToTarget > stoppingDistance)
         {
-            // Movimiento hacia el objetivo
-            transform.position += direction * moveSpeed * Time.deltaTime;
+            transform.position += direction * speed * Time.deltaTime;
         }
-        // --- FIN DEL BLOQUE MODIFICADO ---
+        // -----------------------------------
 
-
-        // Rotación suave hacia el objetivo (la rotación siempre ocurre)
+        // La rotación siempre ocurre para mirarte amenazantemente
         Quaternion lookRotation = Quaternion.LookRotation(direction);
-        transform.rotation = Quaternion.Slerp(transform.rotation,
-                                    lookRotation, rotationSpeed * Time.deltaTime);
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, rotationSpeed * Time.deltaTime);
     }
 
-
-    private void ApplyVisualEffects(int dagas)
+    private void ApplyVisualEffects(int dagasCantidad)
     {
+        // Aumentar efectos visuales según cantidad de dagas
         if (chromaticAberration != null)
-            chromaticAberration.intensity.value = Mathf.Clamp(dagas * 0.2f, 0f, 1f);
+            chromaticAberration.intensity.value = Mathf.Clamp(dagasCantidad * 0.2f, 0f, 1f);
 
         if (lensDistortion != null)
-            lensDistortion.intensity.value = Mathf.Clamp(-dagas * 0.1f, -0.5f, 0f);
+            lensDistortion.intensity.value = Mathf.Clamp(-dagasCantidad * 0.1f, -0.5f, 0f);
     }
-
 
     private void ResetVisualEffects()
     {
@@ -154,35 +146,17 @@ public class EnemyChaseController : MonoBehaviour
         if (lensDistortion != null) lensDistortion.intensity.value = 0f;
     }
 
-
-
-    /// <summary>
-    /// Permite activar o desactivar la persecución externamente.
-    /// </summary>
-    public void SetChaseState(bool state)
-    {
-        canChase = state;
-    }
-
-    /// <summary>
-    /// Permite asignar un objetivo dinámicamente.
-    /// </summary>
-    public void SetTarget(Transform newTarget)
-    {
-        target = newTarget;
-    }
-
     private void OnDrawGizmosSelected()
     {
         if (!showDebug) return;
 
+        // Dibujar Rango de Detección (Variable según dagas no visible en editor, muestra base)
         Gizmos.color = canChase ? activeColor : idleColor;
         Gizmos.DrawWireSphere(transform.position, baseDetectionRadius);
 
-        // --- AÑADIDO: Dibujar el círculo de "freno" ---
+        // Dibujar Rango de Freno (ROJO)
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, stoppingDistance);
-        // ---
 
         if (target != null)
         {
@@ -190,5 +164,6 @@ public class EnemyChaseController : MonoBehaviour
             Gizmos.DrawLine(transform.position, target.position);
         }
     }
+
     #endregion
 }

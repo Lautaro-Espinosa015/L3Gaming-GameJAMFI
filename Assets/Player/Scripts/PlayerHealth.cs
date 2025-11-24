@@ -22,12 +22,26 @@ public class PlayerHealth : MonoBehaviour
     void Start()
     {
         currentHealth = maxHealth;
-        // Asegúrate de encontrar el GameManager al inicio
-        gameManager = FindObjectOfType<GameManager>();
-        if (gameManager == null) Debug.LogError("GameManager no encontrado en la escena!");
 
-        // Estas líneas ya no son necesarias aquí, el GameManager se encarga
-        // if (gameOverPanel != null) gameOverPanel.SetActive(false); 
+        // --- CORRECCIÓN: BUSCAR LA UI AUTOMÁTICAMENTE ---
+        // Como somos un Prefab, no podemos tener los iconos conectados.
+        // Los buscamos en la escena por su nombre.
+
+        GameObject contenedor = GameObject.Find("Contenedor_Vidas"); // Asegúrate que se llame así en la Jerarquía
+        if (contenedor != null)
+        {
+            // Agarramos todas las imágenes que estén dentro del contenedor
+            lifeIcons = contenedor.GetComponentsInChildren<Image>();
+        }
+        else
+        {
+            Debug.LogError("¡No encuentro el objeto 'Contenedor_Vidas' en la escena!");
+        }
+        // -----------------------------------------------
+
+        gameManager = FindObjectOfType<GameManager>();
+        if (gameManager == null) Debug.LogError("GameManager no encontrado");
+
         UpdateHealthUI();
     }
 
