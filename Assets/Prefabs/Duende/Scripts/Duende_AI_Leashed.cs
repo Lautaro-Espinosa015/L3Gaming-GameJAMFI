@@ -24,7 +24,7 @@ public class Duende_AI_Leashed : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
 
-        // Buscar al jugador por Tag
+        // Intento inicial de buscar al jugador
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null) player = playerObj.transform;
 
@@ -36,10 +36,23 @@ public class Duende_AI_Leashed : MonoBehaviour
 
     void Update()
     {
-        // 1. SEGURIDAD CRÍTICA:
-        // Si el jugador no existe, o el agente murió/se apagó, no hacer nada.
-        // Esto evita los errores rojos en la consola.
-        if (player == null || agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
+        // 1. SEGURIDAD CRÍTICA: Si el agente murió o se apagó, no hacer nada
+        if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
+
+        // 2. BUSCAR JUGADOR (La corrección para el Spawner)
+        // Si la variable 'player' está vacía, la buscamos de nuevo.
+        if (player == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+            {
+                player = playerObj.transform; // ¡Lo encontramos!
+            }
+            else
+            {
+                return; // Todavía no existe, volvemos a intentar en el próximo frame
+            }
+        }
 
         // --- LÓGICA DE DECISIÓN (CEREBRO) ---
 
@@ -67,7 +80,7 @@ public class Duende_AI_Leashed : MonoBehaviour
         else
         {
             // ESTADO: VOLVER A CASA
-            if (distanceToHome > 1.0f) // Si está lejos de casa (margen de 1 metro)
+            if (distanceToHome > 1.0f) // Si está lejos de casa
             {
                 agent.isStopped = false;
                 agent.SetDestination(startPosition);
@@ -78,11 +91,9 @@ public class Duende_AI_Leashed : MonoBehaviour
             }
         }
 
-        // --- LÓGICA DE ANIMACIÓN (CORRECCIÓN "MOONWALKING") ---
+        // --- LÓGICA DE ANIMACIÓN ---
 
         // Usamos la velocidad física real y un umbral de 0.5f para evitar que "corra quieto".
-        // También usamos el nombre 'isChasing' que configuramos en tu Animator.
-
         if (agent.velocity.sqrMagnitude > 0.5f && !agent.isStopped)
         {
             anim.SetBool("isChasing", true); // Activa RUN
@@ -102,7 +113,7 @@ public class Duende_AI_Leashed : MonoBehaviour
         Gizmos.DrawWireSphere(startPosition, 1.0f); // Casa
 
         Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, detectionRange); // Rango detección (Corregido)
+        Gizmos.DrawWireSphere(transform.position, detectionRange); // Rango detección
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(startPosition, leashRange); // Límite correa
