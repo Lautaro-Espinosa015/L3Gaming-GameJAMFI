@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CollectorController : MonoBehaviour
 {
@@ -28,6 +29,16 @@ public class CollectorController : MonoBehaviour
     // --- AÑADIDO: Método Start para encontrar el GameManager ---
     private void Start()
     {
+
+
+        if (SceneManager.GetActiveScene().buildIndex != 0)
+        {
+            // Si no es la escena 0, desactivamos este componente
+            this.enabled = false;
+            return;
+        }
+
+
         // Busca el GameManager en la escena al iniciar
         gameManager = FindObjectOfType<GameManager>();
         if (gameManager == null)
@@ -112,7 +123,7 @@ public class CollectorController : MonoBehaviour
             Debug.Log("¡CONDICIÓN DE VICTORIA CUMPLIDA!");
             if (gameManager != null)
             {
-                gameManager.ShowVictoryScreen(); // ¡Llama al GameManager!
+                SceneManager.LoadScene(1);
             }
         }
         // ---

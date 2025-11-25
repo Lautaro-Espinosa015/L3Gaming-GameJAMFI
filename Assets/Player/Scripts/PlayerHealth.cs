@@ -1,6 +1,7 @@
 using System.Collections; // Necesario para las Corutinas (el cooldown)
 using UnityEngine;
 using UnityEngine.UI; // Necesario para controlar las Imágenes
+using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -21,6 +22,15 @@ public class PlayerHealth : MonoBehaviour
 
     void Start()
     {
+
+        if (SceneManager.GetActiveScene().buildIndex != 0)
+        {
+            // Si no es la escena 0, desactivamos este componente
+            this.enabled = false;
+            return;
+        }
+
+
         currentHealth = maxHealth;
 
         // --- CORRECCIÓN: BUSCAR LA UI AUTOMÁTICAMENTE ---

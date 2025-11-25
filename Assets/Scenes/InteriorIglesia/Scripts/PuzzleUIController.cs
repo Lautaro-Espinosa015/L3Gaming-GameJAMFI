@@ -13,10 +13,11 @@ public class PuzzleUIController : MonoBehaviour
     [Header("Referencias")]
     public PuzzleManager puzzleManager;
     public GameObject canvasPuzzle;
-    public GameObject playerArmature; // Asignar directamente el objeto del jugador
+    public GameObject PlayerArmature; // Asignar directamente el objeto del jugador
 
     void Start()
     {
+        PlayerArmature = GameObject.FindGameObjectWithTag("Player");
         // Conectar listeners
         btnReiniciar.onClick.AddListener(ReiniciarPuzzle);
         btnSalir.onClick.AddListener(SalirPuzzle);
@@ -44,9 +45,9 @@ public class PuzzleUIController : MonoBehaviour
     {
         if (canvasPuzzle != null) canvasPuzzle.SetActive(false);
 
-        if (playerArmature != null)
+        if (PlayerArmature != null)
         {
-            var controller = playerArmature.GetComponent<ThirdPersonController>();
+            var controller = PlayerArmature.GetComponent<ThirdPersonController>();
             if (controller != null)
             {
                 controller.enabled = true;
