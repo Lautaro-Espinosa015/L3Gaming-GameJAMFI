@@ -26,7 +26,10 @@ public class PuzzleTrigger : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
+        {
+            Debug.Log("Colisión detectada con: " + other.gameObject.name); // <--- AGREGA ESTO
             playerInside = true;
+        }
     }
 
     void OnTriggerExit(Collider other)
@@ -37,7 +40,7 @@ public class PuzzleTrigger : MonoBehaviour
 
     void Update()
     {
-        if (playerInside && Input.GetKeyDown(KeyCode.E))
+        if (playerInside && Input.GetKeyDown(KeyCode.Q))
         {
             EnterPuzzle();
         }

@@ -686,7 +686,6 @@ GameObject:
   - component: {fileID: 203386488}
   - component: {fileID: 203386492}
   - component: {fileID: 203386491}
-  - component: {fileID: 203386490}
   - component: {fileID: 203386489}
   m_Layer: 5
   m_Name: Pieza02
@@ -726,18 +725,6 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &203386490
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 203386487}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 55421e573cb7a5c499a8a918e2c96e91, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &203386491
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -917,9 +904,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1320878207368383883, guid: 494a6e70a4258bd4aa7cce3c29669642, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2001248941}
-    - targetCorrespondingSourceObject: {fileID: 7476982080862418823, guid: 494a6e70a4258bd4aa7cce3c29669642, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 980000096}
   m_SourcePrefab: {fileID: 100100000, guid: 494a6e70a4258bd4aa7cce3c29669642, type: 3}
 --- !u!1 &379583119
 GameObject:
@@ -932,7 +916,6 @@ GameObject:
   - component: {fileID: 379583120}
   - component: {fileID: 379583124}
   - component: {fileID: 379583123}
-  - component: {fileID: 379583122}
   - component: {fileID: 379583121}
   m_Layer: 5
   m_Name: Pieza03
@@ -972,18 +955,6 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &379583122
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 379583119}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 55421e573cb7a5c499a8a918e2c96e91, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &379583123
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1591,20 +1562,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 7476982080862418823, guid: 494a6e70a4258bd4aa7cce3c29669642, type: 3}
   m_PrefabInstance: {fileID: 342437116}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &980000096
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 980000086}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e97a872993b10b841aee81dbd4215767, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canvasPuzzle: {fileID: 644681671}
-  PlayerArmature: {fileID: 980000086}
 --- !u!1 &1200723166
 GameObject:
   m_ObjectHideFlags: 0
@@ -1752,7 +1709,6 @@ GameObject:
   - component: {fileID: 1203479608}
   - component: {fileID: 1203479612}
   - component: {fileID: 1203479611}
-  - component: {fileID: 1203479610}
   - component: {fileID: 1203479609}
   m_Layer: 5
   m_Name: Pieza06
@@ -1792,18 +1748,6 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &1203479610
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1203479607}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 55421e573cb7a5c499a8a918e2c96e91, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1203479611
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2789,7 +2733,6 @@ GameObject:
   - component: {fileID: 1814827434}
   - component: {fileID: 1814827438}
   - component: {fileID: 1814827437}
-  - component: {fileID: 1814827436}
   - component: {fileID: 1814827435}
   m_Layer: 5
   m_Name: Pieza04
@@ -2829,18 +2772,6 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &1814827436
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1814827433}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 55421e573cb7a5c499a8a918e2c96e91, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1814827437
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2890,7 +2821,6 @@ GameObject:
   - component: {fileID: 1931537056}
   - component: {fileID: 1931537060}
   - component: {fileID: 1931537059}
-  - component: {fileID: 1931537058}
   - component: {fileID: 1931537057}
   m_Layer: 5
   m_Name: Pieza05
@@ -2930,18 +2860,6 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &1931537058
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1931537055}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 55421e573cb7a5c499a8a918e2c96e91, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1931537059
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3289,7 +3207,6 @@ GameObject:
   - component: {fileID: 2015304058}
   - component: {fileID: 2015304062}
   - component: {fileID: 2015304061}
-  - component: {fileID: 2015304060}
   - component: {fileID: 2015304059}
   m_Layer: 5
   m_Name: Pieza01
@@ -3326,21 +3243,9 @@ CanvasGroup:
   m_GameObject: {fileID: 2015304057}
   m_Enabled: 1
   m_Alpha: 1
-  m_Interactable: 1
+  m_Interactable: 0
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &2015304060
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2015304057}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 55421e573cb7a5c499a8a918e2c96e91, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &2015304061
 MonoBehaviour:
   m_ObjectHideFlags: 0
