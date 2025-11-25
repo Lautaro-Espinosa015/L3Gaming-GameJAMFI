@@ -352,7 +352,7 @@ MonoBehaviour:
   puntoOrbita: {fileID: 4699777914436030054}
   radioOrbita: 1
   velocidadRotacion: 50
-  puntoEntrega: {fileID: 0}
+  puntoEntrega: {fileID: 8819191369542099544, guid: a17a75e6b8414cd4aacf2cd3a9f92bb8, type: 3}
   radioEntrega: 1.2
   alturaEntrega: 1
   velocidadRotacionEntrega: 20

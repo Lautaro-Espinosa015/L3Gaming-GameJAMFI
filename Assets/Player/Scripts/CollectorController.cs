@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CollectorController : MonoBehaviour
 {
@@ -112,7 +113,7 @@ public class CollectorController : MonoBehaviour
             Debug.Log("¡CONDICIÓN DE VICTORIA CUMPLIDA!");
             if (gameManager != null)
             {
-                gameManager.ShowVictoryScreen(); // ¡Llama al GameManager!
+                SceneManager.LoadScene(1);
             }
         }
         // ---

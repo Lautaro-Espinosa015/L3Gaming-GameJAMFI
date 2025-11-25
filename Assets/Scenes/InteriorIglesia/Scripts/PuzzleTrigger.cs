@@ -18,9 +18,20 @@ public class PuzzleTrigger : MonoBehaviour
             canvasPuzzle.SetActive(false);
         }
 
-        // Buscar los componentes en PlayerArmature
-        movementScript = PlayerArmature.GetComponent<ThirdPersonController>();
-        inputScript = PlayerArmature.GetComponent<StarterAssetsInputs>();
+        // Intentar encontrar el Player por Tag
+        PlayerArmature = GameObject.FindGameObjectWithTag("Player");
+
+
+        if (PlayerArmature != null)
+        {
+            movementScript = PlayerArmature.GetComponent<ThirdPersonController>();
+            inputScript = PlayerArmature.GetComponent<StarterAssetsInputs>();
+        }
+        else
+        {
+            Debug.LogWarning("Player no encontrado al iniciar. Se intentará buscar más tarde.");
+        }
+
     }
 
     void OnTriggerEnter(Collider other)

@@ -7001,7 +7001,7 @@ MonoBehaviour:
   puntoOrbita: {fileID: 2656463647682279436}
   radioOrbita: 1
   velocidadRotacion: 50
-  puntoEntrega: {fileID: 0}
+  puntoEntrega: {fileID: 2321082662254810020, guid: b7e9d63b776a005418ea82fe0874cf16, type: 3}
   radioEntrega: 1.2
   alturaEntrega: 1
   velocidadRotacionEntrega: 20
@@ -7390,7 +7390,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Actions: {fileID: -944628639613478452, guid: 4419d82f33d36e848b3ed5af4c8da37e, type: 3}
+  m_Actions: {fileID: 0}
   m_NotificationBehavior: 0
   m_UIInputModule: {fileID: 0}
   m_DeviceLostEvent:
