@@ -2325,6 +2325,7 @@ GameObject:
   - component: {fileID: 5889392594442818411}
   - component: {fileID: 2551732290541639854}
   - component: {fileID: 2885222097085243284}
+  - component: {fileID: 4374009217679174461}
   m_Layer: 0
   m_Name: Duende Azul
   m_TagString: Enemy
@@ -2459,6 +2460,19 @@ CapsuleCollider:
   m_Height: 0.96328735
   m_Direction: 1
   m_Center: {x: 0.027069092, y: 0.47698307, z: 0.029937744}
+--- !u!114 &4374009217679174461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7338497347084520628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20df2122b732dad4e9a2514efaeb4194, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 3
 --- !u!1 &7368015664504179133
 GameObject:
   m_ObjectHideFlags: 0
