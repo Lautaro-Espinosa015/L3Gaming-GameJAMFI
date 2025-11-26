@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 995955772765971783}
   - component: {fileID: 6456626397828204458}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: Alma
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
