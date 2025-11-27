@@ -3,73 +3,64 @@ using UnityEngine.Video;
 
 public class CinematicaLauncher : MonoBehaviour
 {
-    // Arrastra el componente Video Player de este mismo objeto 'Cinematica' aquí en el Inspector
-    [SerializeField] private VideoPlayer videoPlayer;
+    [Header("Configuración Video")]
+    public VideoPlayer videoPlayer;
+    public GameObject videoCanvas; // El panel negro donde se ve el video
 
-    // Opcional: Referencia al GameObject CanvasCinematica para activarlo/desactivarlo
-    [SerializeField] private GameObject videoCanvas;
+    [Header("Configuración Victoria")]
+    [Tooltip("Arrastra aquí tu Panel de Victoria (UI)")]
+    public GameObject victoryPanel; // <--- ¡NUEVO!
 
     void Start()
     {
-        // Asegúrate de que el componente VideoPlayer esté asignado
-        if (videoPlayer == null)
-        {
-            videoPlayer = GetComponent<VideoPlayer>();
-        }
+        if (videoPlayer == null) videoPlayer = GetComponent<VideoPlayer>();
 
-        // Asignar el Canvas (si no está asignado) asumiendo que es el padre
-        if (videoCanvas == null && transform.parent != null)
-        {
-            videoCanvas = transform.parent.gameObject;
-        }
+        // Asegurarnos de que los paneles empiecen apagados
+        if (videoCanvas != null) videoCanvas.SetActive(false);
+        if (victoryPanel != null) victoryPanel.SetActive(false);
 
-        // Ocultar el CanvasCinematica al inicio, ya que solo debe aparecer cuando se reproduce el video
-        if (videoCanvas != null)
-        {
-            videoCanvas.SetActive(false);
-        }
+        // Suscribirse al evento de fin de video
+        videoPlayer.loopPointReached += OnVideoFinished;
     }
 
-    // Esta función es llamada públicamente por PuzzleUIController al hacer clic en "Continuar"
+    // Esta función la llamas desde el evento OnDeath del enemigo
     public void PlayVideo()
     {
         if (videoPlayer != null)
         {
-            // 1. Activar el Canvas que contiene el RawImage para mostrar el video
-            if (videoCanvas != null)
-            {
-                videoCanvas.SetActive(true);
-            }
+            // 1. Mostrar pantalla de video
+            if (videoCanvas != null) videoCanvas.SetActive(true);
 
-            // 2. Iniciar la reproducción
-            Debug.Log("Iniciando la reproducción de la Cinemática.");
+            // 2. Reproducir
             videoPlayer.Play();
-
-            // Opcional: Suscribirse a un evento para saber cuándo termina el video
-            videoPlayer.loopPointReached += OnVideoFinished;
-        }
-        else
-        {
-            Debug.LogError("VideoPlayer no asignado en el CinematicaLauncher.");
+            Debug.Log("Reproduciendo cinemática...");
         }
     }
 
-    // Función que se llama automáticamente cuando el video termina (si no está en loop)
+    // Se ejecuta AUTOMÁTICAMENTE cuando el video termina
     void OnVideoFinished(VideoPlayer vp)
     {
-        Debug.Log("Cinemática finalizada.");
+        Debug.Log("Video terminado. Activando Victoria.");
 
-        // 1. Desactivar el Canvas del video
-        if (videoCanvas != null)
+        // 1. Ocultar pantalla de video
+        if (videoCanvas != null) videoCanvas.SetActive(false);
+
+        // 2. MOSTRAR VICTORIA (Directamente aquí)
+        if (victoryPanel != null)
         {
-            videoCanvas.SetActive(false);
+            victoryPanel.SetActive(true);
+
+            // --- LÓGICA DE FINAL DE JUEGO ---
+            // Como no usamos el GameManager, lo hacemos aquí manualmente:
+            Time.timeScale = 0f; // Pausar el juego
+
+            // Liberar el mouse para que puedan hacer clic en los botones
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
         }
-
-        // 2. Lógica de avance del juego después de la cinemática
-        // Ejemplo: Cargar la siguiente escena
-        // UnityEngine.SceneManagement.SceneManager.LoadScene("NombreDeTuEscenaSiguiente");
-
-        // 3. Desuscribirse del evento
-        vp.loopPointReached -= OnVideoFinished;
+        else
+        {
+            Debug.LogError("¡Olvidaste arrastrar el Panel de Victoria al script de la Cinemática!");
+        }
     }
 }
