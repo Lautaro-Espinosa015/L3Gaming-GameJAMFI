@@ -41,6 +41,13 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+
+        // Iniciar el juego con G
+        if (startMenuPanel != null && startMenuPanel.activeSelf && Input.GetKeyDown(KeyCode.G))
+        {
+            StartGame();
+        }
+
         // Reiniciar con R
         if (Input.GetKeyDown(KeyCode.R))
         {
@@ -65,7 +72,11 @@ public class GameManager : MonoBehaviour
     // --- Funciones de Menús ---
     public void StartGame()
     {
-        if (startMenuPanel != null) startMenuPanel.SetActive(false);
+        if (startMenuPanel != null)
+        {
+            startMenuPanel.SetActive(false);
+            
+        }
         ResumeGame();
     }
 
