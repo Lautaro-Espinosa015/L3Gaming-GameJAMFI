@@ -20,7 +20,10 @@ public class EnemyChaseController : MonoBehaviour
     [SerializeField] private bool canChase = false;
 
     [Header("Escalado por Dagas (Dificultad)")]
-    public CollectorController collector;
+    public CollectorController collector; // Será autoasignado por tag
+    [SerializeField] private string collectorTag = "Collector"; // <- Tag configurable
+    [SerializeField] private float collectorSearchInterval = 0.75f; // <- Evita buscar cada frame
+    private float nextCollectorSearchTime;
     public float detectionIncreasePerDaga = 1f; // Cuánto aumenta el rango por daga
     public float speedIncreasePerDaga = 0.5f;   // Cuánto aumenta la velocidad por daga
     private int dagas;
@@ -55,7 +58,15 @@ public class EnemyChaseController : MonoBehaviour
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             if (player != null) target = player.transform;
+            // Intentar asignar Collector por tag al empezar
+            TryAssignCollectorByTag();
+
         }
+
+
+       
+        
+
 
         // Configurar Post-Processing
         if (postProcessVolume != null)
@@ -67,13 +78,25 @@ public class EnemyChaseController : MonoBehaviour
 
     private void Update()
     {
+
+        // Reintento suave si Collector se crea más tarde
+        if (collector == null && Time.time >= nextCollectorSearchTime)
+        {
+            TryAssignCollectorByTag();
+            nextCollectorSearchTime = Time.time + collectorSearchInterval;
+        }
+
         if (!canChase) return;
 
         // SEGURIDAD: Re-buscar al jugador si se perdió (por cambio de personaje)
         if (target == null)
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null) target = player.transform;
+            if (player != null)
+            {
+                target = player.transform;
+                TryAssignCollectorByTag();
+            }
             else return; // Si no hay jugador, no hacemos nada
         }
 
@@ -110,6 +133,30 @@ public class EnemyChaseController : MonoBehaviour
     #endregion
 
     #region Lógica de Métodos
+
+
+
+    private void TryAssignCollectorByTag()
+    {
+        // Evitar trabajo si ya está asignado
+        if (collector != null) return;
+
+        // Buscar por tag (asegurate que el GameObject tenga el tag "Collector")
+        GameObject collectorGO = GameObject.FindGameObjectWithTag(collectorTag);
+        if (collectorGO != null)
+        {
+            collector = collectorGO.GetComponent<CollectorController>();
+            if (collector == null)
+            {
+                Debug.LogWarning($"El objeto con tag '{collectorTag}' no tiene CollectorController.");
+            }
+            else
+            {
+                // Opcional: log para confirmar
+                // Debug.Log("Collector asignado por tag correctamente.");
+            }
+        }
+    }
 
     private void ChaseTarget(float distanceToTarget, float speed)
     {

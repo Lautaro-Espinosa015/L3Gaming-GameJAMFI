@@ -8,6 +8,8 @@ TagManager:
   - Enemy
   - Daga
   - ZonaEntrega
+  - PuzzleSlot
+  - Collector
   layers:
   - Default
   - TransparentFX
