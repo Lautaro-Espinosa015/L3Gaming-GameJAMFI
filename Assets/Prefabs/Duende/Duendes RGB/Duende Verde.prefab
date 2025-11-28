@@ -1974,6 +1974,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 3
+  dropOnDeathPrefab: {fileID: 0}
+  destroyDelay: 0.1
+  lootLifetime: 3
 --- !u!1 &5550049579906517753
 GameObject:
   m_ObjectHideFlags: 0
