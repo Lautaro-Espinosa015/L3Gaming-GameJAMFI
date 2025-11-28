@@ -5,89 +5,145 @@ using UnityEngine.Video;
 
 public class GameManager : MonoBehaviour
 {
-    // --- Referencias a los Paneles de UI ---
+    [Header("Paneles UI")]
     public GameObject startMenuPanel;
     public GameObject pauseMenuPanel;
     public GameObject gameOverPanel;
-    public GameObject victoryPanel; // --- AÑADIDO ---
+    public GameObject victoryPanel;
 
-    public VideoPlayer victoryVideoPlayer; // --- AÑADIDO ---
+    [Header("Videos")]
+    public VideoPlayer victoryVideoPlayer;
 
-    // --- Variables de Estado del Juego ---
+    // --- NUEVO: Variables para la Intro ---
+    [Tooltip("Arrastra aquí el Video Player de tu cinemática de inicio")]
+    public VideoPlayer introVideoPlayer;
+    [Tooltip("Arrastra aquí el Panel Negro (RawImage) donde se ve la intro")]
+    public GameObject introVideoPanel;
+    // -------------------------------------
+
+    // Estados
     private bool isGamePaused = false;
     private bool isGameOver = false;
-    private bool isGameWon = false; // --- AÑADIDO ---
+    private bool isGameWon = false;
+    private bool isPlayingIntro = false; // Para saber si estamos viendo la intro
 
     void Start()
     {
-        // Activa/desactiva todos los paneles al inicio
+        // 1. Configuración Inicial
         if (startMenuPanel != null) startMenuPanel.SetActive(true);
         if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
-        if (victoryPanel != null) victoryPanel.SetActive(false); // --- AÑADIDO ---
+        if (victoryPanel != null) victoryPanel.SetActive(false);
 
-        // Pausa el juego para el menú de inicio
+        // Aseguramos que el panel de intro empiece apagado
+        if (introVideoPanel != null) introVideoPanel.SetActive(false);
+
+        // 2. Pausar tiempo
         Time.timeScale = 0f;
         isGamePaused = true;
 
-        // Resetea los estados
         isGameOver = false;
         isGameWon = false;
 
-        // Muestra el cursor
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
+        UnlockCursor();
     }
 
     void Update()
     {
+        // --- PROTECCIÓN DE CURSOR ---
+        bool menuAbierto = (startMenuPanel != null && startMenuPanel.activeSelf) ||
+                           isGamePaused || isGameOver || isGameWon || isPlayingIntro;
 
-        // Iniciar el juego con G
+        if (menuAbierto)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+
+        // Iniciar con G
         if (startMenuPanel != null && startMenuPanel.activeSelf && Input.GetKeyDown(KeyCode.G))
         {
             StartGame();
         }
 
-        // Reiniciar con R
-        if (Input.GetKeyDown(KeyCode.R))
+        // Omitir Intro con Espacio (Opcional)
+        if (isPlayingIntro && Input.GetKeyDown(KeyCode.Space))
         {
-            RestartCurrentScene();
+            SkipIntro();
         }
 
-        // Pausar con P
-        // --- AÑADIDO: No se puede pausar si ya ganaste o perdiste ---
-        if (Input.GetKeyDown(KeyCode.P) && !isGameOver && !isGameWon && (startMenuPanel == null || !startMenuPanel.activeSelf))
+        // Reiniciar con R
+        if (Input.GetKeyDown(KeyCode.R)) RestartCurrentScene();
+
+        // Pausa con P (Solo si no hay intro, ni gameover, ni victoria)
+        if (Input.GetKeyDown(KeyCode.P) && !isGameOver && !isGameWon && !isPlayingIntro &&
+           (startMenuPanel == null || !startMenuPanel.activeSelf))
         {
-            if (isGamePaused)
-            {
-                ResumeGame();
-            }
-            else
-            {
-                PauseGame();
-            }
+            if (isGamePaused) ResumeGame();
+            else PauseGame();
         }
     }
 
-    // --- Funciones de Menús ---
+    // --- MODIFICACIÓN: Lógica de Inicio ---
+
     public void StartGame()
     {
-        if (startMenuPanel != null)
+        // 1. Ocultar menú
+        if (startMenuPanel != null) startMenuPanel.SetActive(false);
+
+        // 2. ¿Tenemos video de intro?
+        if (introVideoPlayer != null)
         {
-            startMenuPanel.SetActive(false);
-            
+            PlayIntro();
         }
+        else
+        {
+            // Si no hay video, empezamos el juego directamente
+            ResumeGame();
+        }
+    }
+
+    void PlayIntro()
+    {
+        isPlayingIntro = true;
+
+        // Mostrar pantalla de video
+        if (introVideoPanel != null) introVideoPanel.SetActive(true);
+
+        // Preparar evento de fin
+        introVideoPlayer.loopPointReached += OnIntroFinished;
+
+        // Reproducir
+        introVideoPlayer.Play();
+    }
+
+    void OnIntroFinished(VideoPlayer vp)
+    {
+        // Limpieza
+        vp.loopPointReached -= OnIntroFinished;
+        SkipIntro();
+    }
+
+    public void SkipIntro()
+    {
+        // Detener video y ocultar panel
+        if (introVideoPlayer != null) introVideoPlayer.Stop();
+        if (introVideoPanel != null) introVideoPanel.SetActive(false);
+
+        isPlayingIntro = false;
+
+        // ¡AHORA SÍ EMPIEZA EL JUEGO!
         ResumeGame();
     }
+
+    // --------------------------------------
 
     public void PauseGame()
     {
         if (pauseMenuPanel != null) pauseMenuPanel.SetActive(true);
         Time.timeScale = 0f;
         isGamePaused = true;
-
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
+        UnlockCursor();
     }
 
     public void ResumeGame()
@@ -95,9 +151,7 @@ public class GameManager : MonoBehaviour
         if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
         Time.timeScale = 1f;
         isGamePaused = false;
-
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
+        LockCursor(); // Ocultar mouse para jugar
     }
 
     public void ShowGameOver()
@@ -105,51 +159,24 @@ public class GameManager : MonoBehaviour
         if (gameOverPanel != null) gameOverPanel.SetActive(true);
         Time.timeScale = 0f;
         isGameOver = true;
-        isGamePaused = true; // Marca como pausado
-
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
+        isGamePaused = true;
     }
 
-    // --- AÑADIDA: Nueva función de Victoria ---
     public void ShowVictoryScreen()
     {
         if (victoryPanel != null) victoryPanel.SetActive(true);
         Time.timeScale = 0f;
         isGameWon = true;
         isGamePaused = true;
-
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
-
-        // --- AÑADIDO: Reproducir el video ---
-        if (victoryVideoPlayer != null)
-        {
-            victoryVideoPlayer.Play();
-        }
-        // ---
+        if (victoryVideoPlayer != null) victoryVideoPlayer.Play();
     }
 
-    // --- Función para Reiniciar ---
     public void RestartCurrentScene()
     {
         Time.timeScale = 1f;
-        isGameOver = false;
-        isGameWon = false;
-        isGamePaused = false;
-
-        // --- AÑADIDO: Detener el video al reiniciar ---
-        if (victoryVideoPlayer != null)
-        {
-            victoryVideoPlayer.Stop();
-        }
-        // ---
-
-        Scene currentScene = SceneManager.GetActiveScene();
-        SceneManager.LoadScene(currentScene.name);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    // --- Función para Salir del Juego ---
     public void QuitGame()
     {
 #if UNITY_EDITOR
@@ -157,5 +184,17 @@ public class GameManager : MonoBehaviour
 #else
             Application.Quit();
 #endif
+    }
+
+    void UnlockCursor()
+    {
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+    }
+
+    void LockCursor()
+    {
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 }
