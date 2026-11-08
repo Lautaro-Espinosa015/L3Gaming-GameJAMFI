@@ -1,31 +1,50 @@
 using UnityEngine;
-using TMPro; // Necesario para el Dropdown TextMeshPro
+using UnityEngine.UI; // Necesario para controlar la UI -> Image
+using TMPro;
 
 public class CharacterMenuSelector : MonoBehaviour
 {
-    public TMP_Dropdown dropdown; // Arrastra el Dropdown aquí
-    public CharacterSpawner spawner; // Arrastra el @PlayerManager aquí
+    [Header("Configuración Original")]
+    public TMP_Dropdown dropdown;
+    public CharacterSpawner spawner;
+
+    [Header("Configuración Visual 2D")]
+    public Image marcoImagen;
+    public Sprite[] retratosPersonajes;
 
     void Start()
     {
-        // 1. Cargar el valor guardado en el Dropdown visual
+        // 1. Cargar la selección guardada
         int savedIndex = PlayerPrefs.GetInt("SelectedCharacter", 0);
         dropdown.value = savedIndex;
 
-        // 2. Escuchar cambios: Cuando el jugador elija otro, ejecutar "OnCharacterChanged"
+        // 2. Mostrar la foto correcta al iniciar
+        ActualizarFoto(savedIndex);
+
+        // 3. Escuchar los cambios del Dropdown
         dropdown.onValueChanged.AddListener(OnCharacterChanged);
     }
 
     public void OnCharacterChanged(int index)
     {
-        // Guardar en memoria
         PlayerPrefs.SetInt("SelectedCharacter", index);
         PlayerPrefs.Save();
 
-        // Decirle al Spawner que cambie el modelo en tiempo real
+        // Actualizar la foto al momento
+        ActualizarFoto(index);
+
         if (spawner != null)
         {
             spawner.SpawnCharacter(index);
+        }
+    }
+
+    private void ActualizarFoto(int index)
+    {
+        // Verifica que la imagen exista en la lista para evitar errores
+        if (marcoImagen != null && retratosPersonajes != null && index >= 0 && index < retratosPersonajes.Length)
+        {
+            marcoImagen.sprite = retratosPersonajes[index];
         }
     }
 }
